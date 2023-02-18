@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-replace-color",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "scripts": {
     "build": "cross-env ENV=production rollup -c --bundleConfigAsCjs && cross-env ENV=production MODE=client rollup -c --bundleConfigAsCjs"
