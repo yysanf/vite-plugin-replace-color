@@ -1,6 +1,5 @@
 import { Plugin } from "vite";
 import { formatHex, parseRgba, colorReg } from "./utils";
-import { STYLE_ID } from "./client";
 import { createFilter } from "vite";
 
 export interface Options {
@@ -89,7 +88,7 @@ export default function replaceCssVar(options: Options): Plugin {
     transform(code, id) {
       if (id.includes(pluginName) && /client\.js/.test(id)) {
         return {
-          code: styleId ? code.replace(STYLE_ID, styleId) : code,
+          code: styleId ? code.replace("_VITE_REPLACE_COLOR_", styleId) : code,
           map: this.getCombinedSourcemap(),
         };
       }
