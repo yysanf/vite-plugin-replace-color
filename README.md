@@ -29,6 +29,7 @@ export default () => {
     plugins: [
       replaceColorPlugin({
         colorVariables: {
+          // 颜色需要小写 #FFF 需要写成 #fff
           //  定义 rgb 时 会替换 rgb() 里面的 内容 透明度不会修改
           // color: #fff  --> color: var(--c5-white)
           // backgroud: rgb(255,255,255,0.2) --->  backgroud:rgb(var(--c5-white-rgb)/0.2)
@@ -36,9 +37,12 @@ export default () => {
           "#2563f4": { hex: "var(--c5-color)", rgb: "var(--c5-rgb)" },
           "#409eff": "var(--c5-color)",
         },
-        styleId: "_VITE_REPLACE_COLOR_", // 注入自定义css 内容 时  style标签名
-        includes: ["src/**/App.vue*"], // vue文件编译处理后 样式文件路径可能并不是 .vue 结尾
-        exclude: ["node_modules/**"], // 忽略 依赖包
+        // 注入自定义css 内容 时  style标签名
+        styleId: "_VITE_REPLACE_COLOR_",
+        // vue样式编译处理后 文件名有额外参数 如 xxx.vue?vue&type=style 所以结尾加 * 匹配vue
+        includes: ["src/**/App.vue*"],
+        // 忽略 依赖包
+        exclude: ["node_modules/**"],
       }),
     ],
   }
@@ -75,6 +79,6 @@ export default () => {
 ### 辅助功能
 - injectStyle   创建style标签 写入一些自定义css 到页面中  内容为空则删除 style标签
 ```
-import { injectStyle } from "vite-plugin-replace-theme/es/client";
+import { injectStyle } from "vite-plugin-replace-color/es/client";
 injectStyle(`:root { --c5-color: #2563F4; --c5-rgb: 37 99 244;}`)
 ```
