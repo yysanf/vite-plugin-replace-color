@@ -1,19 +1,14 @@
 import { Plugin } from "vite";
 import { formatHex, parseRgba, colorReg } from "./utils";
 import { STYLE_ID } from "./client";
+import { createFilter } from "vite";
 
 export interface Options {
   colorVariables: Record<string, string | { hex?: string; rgb?: string }>;
   styleId?: string;
-  /**
-   * @param decl 属性信息   参考 https://postcss.org/api/#declaration
-   * @param postcss postcss  参考  https://postcss.org/api/#result
-   * @returns
-   */
-  customerReplaceVariable?: (
-    decl: Record<string, any>,
-    postcss: Record<string, any>
-  ) => string | void;
+  customerReplaceVariable?: (decl: Record<string, any>) => string | void;
+  includes?: Array<string | RegExp> | string | RegExp;
+  exclude?: Array<string | RegExp> | string | RegExp;
 }
 
 const pluginName = "vite-plugin-replace-color";
@@ -47,7 +42,7 @@ export default function replaceCssVar(options: Options): Plugin {
       return `rgb(${color}${color.includes(",") ? "," : "/"}${alpha})`;
     }
   }
-  function replace({ value }: any) {
+  function replace({ value }: { value: string; [key: string]: unknown }) {
     return value.replace(colorReg, (s) => {
       const isHex = s.startsWith("#");
       if (isHex) {
@@ -67,6 +62,7 @@ export default function replaceCssVar(options: Options): Plugin {
     });
   }
 
+  const filter = createFilter(options.includes, options.exclude);
   const replaceVariable = options.customerReplaceVariable || replace;
   return {
     name: pluginName,
@@ -79,8 +75,14 @@ export default function replaceCssVar(options: Options): Plugin {
       // 添加 postcss 插件处理 css 有关颜色的属性
       plugins.push({
         postcssPlugin: "postcss-vite-replace",
-        Declaration(decl, _postcss) {
-          decl.value = replaceVariable(decl, _postcss);
+        Once(root) {
+          const file = root.source.input.file;
+          if (!filter(file)) return;
+          root.walkDecls((decl) => {
+            const val = replaceVariable(decl);
+            if (val) decl.value = val;
+            else if (val === "") decl.remove();
+          });
         },
       });
     },

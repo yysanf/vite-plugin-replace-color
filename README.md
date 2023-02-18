@@ -1,7 +1,7 @@
 # vite-plugin-replace-color
 
 ## 简介
-- 替换css文件中的颜色 或者 自定替换css 的属性；搭配 css变量可实现动态切换主题色
+- 替换css文件中的颜色或者自定替换css属性的vite插件；搭配 css变量可实现动态切换主题色
 
 ## 安装
 
@@ -37,6 +37,8 @@ export default () => {
           "#409eff": "var(--c5-color)",
         },
         styleId: "_VITE_REPLACE_COLOR_", // 注入自定义css 内容 时  style标签名
+        includes: ["src/**/App.vue*"], // vue文件编译处理后 样式文件路径可能并不是 .vue 结尾
+        exclude: ["node_modules/**"], // 忽略 依赖包
       }),
     ],
   }
@@ -47,7 +49,7 @@ export default () => {
 .color {
   color: #2563f4;
   background-color: rgb(#2563f4, 0.4); // 有透明度 会从 rgb 属性中去匹配
-  box-sizing: 0 0 1 rgb(37 99 244);
+  box-shadow: 0 0 1px rgb(37 99 244);
   border-color: #2563f466; // 8位带颜色的 也会从 rgb 属性中去匹配
 }
 ```
@@ -57,7 +59,7 @@ export default () => {
   color: var(--c5-color);
   background-color: rgb(var(--c5-rgb)/0.4);
   border-color: rgb(var(--c5-rgb)/0.4);
-  box-sizing: 0 0 1 var(--c5-color);
+  box-shadow: 0 0 1px var(--c5-color);
 }
 ```
 
@@ -67,8 +69,9 @@ export default () => {
 | ---------   | --------- | --------- | --------- | --------- |
 | colorVariables    | `Record<string, string \| { hex?: string; rgb?: string }>` | - | 是 | 声明替换的颜色 |
 | styleId | `string` | `_VITE_REPLACE_COLOR_` | 否 | 注入自定义css 内容 时  style标签名 |
-| customerReplaceVariable      | `(decl,postcss) => string` | decl,postcss | 否 | 自定义替换css属性 参数postcss的declaration和result  (https://postcss.org/api#result) |
-
+| customerReplaceVariable      | `(decl) => string` | decl(https://postcss.org/api/#declaration) | 否 | 自定义替换css(返回''则删除该条属性) |
+| includes      | `Array<string\|RegExp>\|string\|RegExp`  |  -  | 否|  匹配文件规则 |
+| exclude       | `Array<string\|RegExp>\|string\|RegExp`  |  -  | 否 | 忽略文件规则 |
 ### 辅助功能
 - injectStyle   创建style标签 写入一些自定义css 到页面中  内容为空则删除 style标签
 ```
