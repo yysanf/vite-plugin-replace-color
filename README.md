@@ -23,7 +23,7 @@ pnpm install vite-plugin-replace-color -D
 
 ```ts
 import replaceColorPlugin from 'vite-plugin-replace-color'
-import path from 'path'
+
 export default () => {
   return {
     plugins: [
@@ -43,6 +43,8 @@ export default () => {
         includes: ["src/**/App.vue*"],
         // 忽略 依赖包
         exclude: ["node_modules/**"],
+        // 忽略属性替换
+        ignoreMark: "ignore color"
       }),
     ],
   }
@@ -55,6 +57,7 @@ export default () => {
   background-color: rgb(#2563f4, 0.4); // 有透明度 会从 rgb 属性中去匹配
   box-shadow: 0 0 1px rgb(37 99 244);
   border-color: #2563f466; // 8位带颜色的 也会从 rgb 属性中去匹配
+  outline-color: #2563f4; /* ignore color */  // 结尾用注释写上 ignoreMark 时 会跳过此次处理
 }
 ```
 - 颜色替换结果
@@ -64,6 +67,7 @@ export default () => {
   background-color: rgb(var(--c5-rgb)/0.4);
   border-color: rgb(var(--c5-rgb)/0.4);
   box-shadow: 0 0 1px var(--c5-color);
+  outline-color: #2563f4;
 }
 ```
 
@@ -76,6 +80,7 @@ export default () => {
 | customerReplaceVariable      | `(decl) => string` | decl(https://postcss.org/api/#declaration) | 否 | 自定义替换css(返回''则删除该条属性) |
 | includes      | `Array<string\|RegExp>\|string\|RegExp`  |  -  | 否|  匹配文件规则 |
 | exclude       | `Array<string\|RegExp>\|string\|RegExp`  |  -  | 否 | 忽略文件规则 |
+| ignoreMark       | `string`  |  ignore color  | 否 | 忽略标识 | 在属性后面写上 ignoreMark 注释则会跳过这条属性处理
 ### 辅助功能
 - injectStyle   创建style标签 写入一些自定义css 到页面中  内容为空则删除 style标签
 ```

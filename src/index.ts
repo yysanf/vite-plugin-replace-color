@@ -8,9 +8,11 @@ export interface Options {
   customerReplaceVariable?: (decl: Record<string, any>) => string | void;
   includes?: Array<string | RegExp> | string | RegExp;
   exclude?: Array<string | RegExp> | string | RegExp;
+  ignoreMark?: string;
 }
 
 const pluginName = "vite-plugin-replace-color";
+const IGNORE_MARK = "ignore color";
 
 function parseColorVariables(colors: Options["colorVariables"]) {
   const hexVariables = {},
@@ -63,6 +65,7 @@ export default function replaceCssVar(options: Options): Plugin {
 
   const filter = createFilter(options.includes, options.exclude);
   const replaceVariable = options.customerReplaceVariable || replace;
+  const mark = options.ignoreMark || IGNORE_MARK;
   return {
     name: pluginName,
     config(config) {
@@ -79,8 +82,12 @@ export default function replaceCssVar(options: Options): Plugin {
           if (!filter(file)) return;
           root.walkDecls((decl) => {
             const val = replaceVariable(decl);
-            if (val) decl.value = val;
-            else if (val === "") decl.remove();
+            if (val) {
+              if (val === decl.value) return;
+              const next = decl.next();
+              if (next && next.type === "comment" && next.text === mark) return;
+              decl.value = val;
+            } else if (val === "") decl.remove();
           });
         },
       });
