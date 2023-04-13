@@ -1,6 +1,6 @@
 import { Plugin } from "vite";
 import { formatHex, parseRgba, colorReg } from "./utils";
-import { createFilter } from "vite";
+import { createFilter } from "@rollup/pluginutils";
 
 export interface Options {
   colorVariables: Record<string, string | { hex?: string; rgb?: string }>;
